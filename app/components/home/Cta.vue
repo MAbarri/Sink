@@ -30,6 +30,7 @@ const { documentation } = useAppConfig()
 
           <div class="mt-8 flex flex-wrap justify-center gap-4">
             <Button
+              v-if="documentation"
               as-child
               size="lg"
             >

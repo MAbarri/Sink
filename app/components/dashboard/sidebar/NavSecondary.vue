@@ -21,7 +21,7 @@ const releaseLabel = computed(() => t('sidebar.update', {
   <SidebarGroup>
     <SidebarGroupContent>
       <SidebarMenu :class="secondaryMenuClass">
-        <SidebarMenuItem>
+        <SidebarMenuItem v-if="coffee">
           <SidebarMenuButton
             as-child
             :tooltip="$t('sidebar.coffee')"

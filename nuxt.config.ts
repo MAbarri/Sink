@@ -88,8 +88,8 @@ export default defineNuxtConfig({
     openAPI: {
       production: 'runtime',
       meta: {
-        title: 'Sink API',
-        description: 'A Simple / Speedy / Secure Link Shortener with Analytics, 100% run on Cloudflare.\n\n[Return to this Sink instance](/) · [Read the documentation](https://docs.sink.cool)',
+        title: 'vibemAIler Links API',
+        description: 'Link shortening, cloaking, and click analytics API.\n\n[Return to this instance](/)',
       },
       route: '/_docs/openapi.json',
       ui: {
