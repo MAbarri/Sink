@@ -65,7 +65,7 @@ function hasOgConfig(link: Link): boolean {
 export default eventHandler(async (event) => {
   const { pathname: slug } = parsePath(event.path.replace(/^\/|\/$/g, ''))
   const { slugRegex, reserveSlug } = useAppConfig()
-  const { homeURL, linkCacheTtl, caseSensitive, redirectWithQuery, redirectStatusCode, redirectNoStore } = useRuntimeConfig(event)
+  const { homeURL, linkCacheTtl, caseSensitive, redirectStatusCode, redirectNoStore } = useRuntimeConfig(event)
   const { cloudflare } = event.context
 
   if (event.path === '/' && homeURL)
@@ -102,8 +102,13 @@ export default eventHandler(async (event) => {
       const userAgent = getHeader(event, 'user-agent') || ''
       const query = getQuery(event)
       const destinationQuery = stripReservedQueryKeys(query)
-      const shouldRedirectWithQuery = link.redirectWithQuery ?? redirectWithQuery
-      const buildTarget = (url: string) => shouldRedirectWithQuery ? withQuery(url, destinationQuery) : url
+      // Always forward the (reserved-key-stripped) query onto the
+      // destination — this Sink deployment exists solely to serve
+      // platform's tracked links, which rely on this unconditionally, so
+      // the per-link/global-config `redirectWithQuery` toggle upstream is
+      // no longer read here (existing/legacy stored values on individual
+      // links are simply ignored now, nothing to backfill).
+      const buildTarget = (url: string) => withQuery(url, destinationQuery)
 
       let targetUrl = link.url
       const country = event.context.cloudflare?.request?.cf?.country
