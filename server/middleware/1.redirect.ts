@@ -21,6 +21,21 @@ const SOCIAL_BOTS = [
 
 const APPLE_DEVICE_UA_MARKERS = ['iphone', 'ipad', 'ipod', 'crios']
 
+// Query keys reserved for downstream integrations (e.g. platform's
+// per-recipient email tracking passes `t=<token>`). These are still
+// captured in access logs / webhook payloads (see access-log.ts), but must
+// never leak to the actual destination URL a recipient/visitor lands on.
+const RESERVED_QUERY_KEYS = ['t']
+
+function stripReservedQueryKeys(query: Record<string, unknown>): Record<string, unknown> {
+  const filtered: Record<string, unknown> = {}
+  for (const [key, value] of Object.entries(query)) {
+    if (!RESERVED_QUERY_KEYS.includes(key))
+      filtered[key] = value
+  }
+  return filtered
+}
+
 function isSocialBot(userAgent: string): boolean {
   const ua = userAgent.toLowerCase()
   return SOCIAL_BOTS.some(bot => ua.includes(bot))
@@ -86,8 +101,9 @@ export default eventHandler(async (event) => {
       }
       const userAgent = getHeader(event, 'user-agent') || ''
       const query = getQuery(event)
+      const destinationQuery = stripReservedQueryKeys(query)
       const shouldRedirectWithQuery = link.redirectWithQuery ?? redirectWithQuery
-      const buildTarget = (url: string) => shouldRedirectWithQuery ? withQuery(url, query) : url
+      const buildTarget = (url: string) => shouldRedirectWithQuery ? withQuery(url, destinationQuery) : url
 
       let targetUrl = link.url
       const country = event.context.cloudflare?.request?.cf?.country

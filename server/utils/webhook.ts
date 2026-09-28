@@ -53,6 +53,7 @@ export function createLinkClickedWebhook(click: WebhookClickContext, link: Pick<
         browser: click.browser,
         os: click.os,
         referer: click.referer,
+        query: click.query || undefined,
       },
       link: {
         id: link.id,

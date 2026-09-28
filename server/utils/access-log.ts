@@ -35,6 +35,10 @@ export const blobsMap = {
   blob14: 'device',
   blob15: 'deviceType',
   blob16: 'COLO',
+  // Raw incoming querystring, kept for downstream integrations (e.g.
+  // platform's per-recipient email tracking) that append their own
+  // identifier as a query param on the short link.
+  blob17: 'query',
 } as const
 
 export const doublesMap = {
@@ -63,6 +67,7 @@ export interface WebhookClickContext {
   browser: string
   os: string
   referer: string
+  query: string
 }
 
 export interface AccessLogResult {
@@ -149,6 +154,8 @@ export function collectAccessLog(event: H3Event): AccessLogResult | undefined {
   }
 
   const countryName = getCountryName(cf?.country)
+  const rawQuery = getQuery(event)
+  const queryString = new URLSearchParams(rawQuery as Record<string, string>).toString()
   const logs = {
     url: link.url,
     slug: link.slug,
@@ -166,6 +173,7 @@ export function collectAccessLog(event: H3Event): AccessLogResult | undefined {
     device: uaInfo?.device?.model,
     deviceType: uaInfo?.device?.type,
     COLO: cf?.colo,
+    query: queryString,
 
     // For RealTime Globe
     latitude: Number(cf?.latitude || getHeader(event, 'cf-iplatitude') || 0),
@@ -182,6 +190,7 @@ export function collectAccessLog(event: H3Event): AccessLogResult | undefined {
       browser: uaInfo?.browser?.name || '',
       os: uaInfo?.os?.name || '',
       referer: referer || '',
+      query: queryString,
     },
   }
 }

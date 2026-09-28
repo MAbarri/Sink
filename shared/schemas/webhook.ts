@@ -10,6 +10,13 @@ export const WebhookClickSchema = z.object({
   browser: z.string(),
   os: z.string(),
   referer: z.string(),
+  // Raw incoming querystring on the short-link request (e.g. `t=<token>`),
+  // forwarded here so self-hosted integrations can correlate a click/view
+  // back to their own per-recipient identifiers. Not present upstream —
+  // added for platform's per-recipient email tracking. Reserved keys are
+  // still stripped from the *destination* redirect (see 1.redirect.ts),
+  // this field is only for the webhook payload.
+  query: z.string().optional(),
 }).strict()
 
 export const WebhookLinkSchema = z.object({
